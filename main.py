@@ -58,10 +58,10 @@ def roll_dice(mx: int):
 
 def timer(secs: int):
     for _ in tqdm(range(secs), desc='CTRL + C для остановки'):
-        playsound(r'D:\Python\Activity\sounds\beep.wav')
+        playsound(r'sounds\beep.wav')
         sleep(0.8)
     print('Время вышло!\n')
-    playsound(r'D:\Python\Activity\sounds\time_is_up.wav')
+    playsound(r'sounds\time_is_up.wav')
 
 
 def give_card(diff: int) -> tuple:
@@ -89,7 +89,7 @@ def start_guess(points: int, commands: dict, timer_time: int):
             try:
                 timer(timer_time)
             except KeyboardInterrupt:
-                playsound(r'D:\Python\Activity\sounds\time_is_up.wav')
+                playsound(r'sounds\time_is_up.wav')
             if input('Напишите 0 и нажмите Enter, если не угадали.\nЕсли угадали, просто нажмите Enter.\n') == '0':
                 continue
             if True in card[0]:
@@ -105,11 +105,10 @@ def start_guess(points: int, commands: dict, timer_time: int):
             if commands[command_name] >= points:
                 print('Игра окончена!')
                 print(f'Победа команды "{command_name}"!\n')
-                sleep(3)
                 print('Общий счет')
                 for name, score in commands.items():
                     print(f'{name}: {score}')
-                sleep(5)
+                playsound('sounds/victory.mp3')
                 return
 
 
