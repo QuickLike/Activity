@@ -1,4 +1,3 @@
-import os
 from random import randint, choice
 from time import sleep
 
@@ -58,7 +57,7 @@ def roll_dice(mx: int):
 
 
 def timer(secs: int):
-    for _ in tqdm(range(secs), desc='Таймер'):
+    for _ in tqdm(range(secs), desc='CTRL + C для остановки'):
         playsound(r'D:\Python\Activity\sounds\beep.wav')
         sleep(0.8)
     print('Время вышло!\n')
@@ -87,7 +86,10 @@ def start_guess(points: int, commands: dict, timer_time: int):
             print(f'Сложность карты: {difficulty}')
             print()
             input('Нажмите Enter для запуска таймера.\n')
-            timer(timer_time)
+            try:
+                timer(timer_time)
+            except KeyboardInterrupt:
+                playsound(r'D:\Python\Activity\sounds\time_is_up.wav')
             if input('Напишите 0 и нажмите Enter, если не угадали.\nЕсли угадали, просто нажмите Enter.\n') == '0':
                 continue
             if True in card[0]:
