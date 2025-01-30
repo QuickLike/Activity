@@ -5,7 +5,8 @@ from colorama import Fore
 from playsound import playsound
 from tqdm import tqdm
 
-from cards import cards, types
+from cards import cards, get_card
+from config import TYPES, TIME_IS_UP_SOUND, TIMER_SOUND, VICTORY_SOUND
 
 used_cards = set()
 
@@ -58,10 +59,10 @@ def roll_dice(mx: int):
 
 def timer(secs: int):
     for _ in tqdm(range(secs), desc='CTRL + C для остановки'):
-        playsound(r'sounds\beep.wav')
+        playsound(TIMER_SOUND)
         sleep(0.8)
     print('Время вышло!\n')
-    playsound(r'sounds\time_is_up.wav')
+    playsound(TIME_IS_UP_SOUND)
 
 
 def give_card(diff: int) -> tuple:
@@ -70,7 +71,7 @@ def give_card(diff: int) -> tuple:
         card = choice(cards[diff][type_num])
         if card not in used_cards:
             used_cards.add(card)
-            return card, types[type_num]
+            return card, TYPES[type_num]
 
 
 def start_guess(points: int, commands: dict, timer_time: int):
@@ -78,21 +79,23 @@ def start_guess(points: int, commands: dict, timer_time: int):
         for command_name in commands:
             print(f'Очередь команды "{command_name}"')
             input('Нажмите Enter для раздачи карты\n')
-            difficulty = randint(3, 5)
-            card = give_card(difficulty)
-            card_text = (Fore.RED if True in card[0] else Fore.RESET) + card[0][0]
+            card_text, card_type, card_difficulty, is_red = get_card()
+            # difficulty = randint(3, 5)
+            # card = give_card(difficulty)
+            # card_text = (Fore.RED if True in card[0] else Fore.RESET) + card[0][0]
+            card_text = Fore.RED * is_red + card_text
             print(card_text)
-            print(Fore.RESET + f'Тип карты "{card[1]}".')
-            print(f'Сложность карты: {difficulty}')
+            print(Fore.RESET + f'Тип карты "{TYPES[card_type - 1]}".')
+            print(f'Сложность карты: {card_difficulty}')
             print()
             input('Нажмите Enter для запуска таймера.\n')
             try:
                 timer(timer_time)
             except KeyboardInterrupt:
-                playsound(r'sounds\time_is_up.wav')
+                playsound(TIME_IS_UP_SOUND)
             if input('Напишите 0 и нажмите Enter, если не угадали.\nЕсли угадали, просто нажмите Enter.\n') == '0':
                 continue
-            if True in card[0]:
+            if is_red:
                 while True:
                     win_command = input('Введите название угадавшей команды:\n')
                     if win_command not in commands:
@@ -100,15 +103,15 @@ def start_guess(points: int, commands: dict, timer_time: int):
                         continue
                     command_name = win_command
                     break
-            print(f'Команда "{command_name}" заработала очки: {difficulty}\n')
-            commands[command_name] += difficulty
+            print(f'Команда "{command_name}" заработала очки: {card_difficulty}\n')
+            commands[command_name] += card_difficulty
             if commands[command_name] >= points:
                 print('Игра окончена!')
                 print(f'Победа команды "{command_name}"!\n')
                 print('Общий счет')
                 for name, score in commands.items():
                     print(f'{name}: {score}')
-                playsound('sounds/victory.mp3')
+                playsound(VICTORY_SOUND)
                 return
 
 

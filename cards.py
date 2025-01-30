@@ -1,4 +1,15 @@
-types = ('Рисунок', 'Говорение', 'Жесты')
+import sqlite3
+from random import choice
+
+from config import DB_NAME
+
+
+def get_card():
+    with sqlite3.connect(DB_NAME) as conn:
+        cur = conn.cursor()
+        cards = cur.execute('SELECT text, type, difficulty, is_red FROM cards WHERE is_taken = 0').fetchall()
+        conn.commit()
+        return choice(cards)
 
 
 #  Ключи словаря - сложность. Значения - кортежи, где [0] - рисунок, [1] - говорение, [2] - жесты.
@@ -83,3 +94,7 @@ cards = {
         ),
     ),
 }
+
+
+if __name__ == '__main__':
+    print(get_card())
