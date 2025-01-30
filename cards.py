@@ -7,9 +7,18 @@ from config import DB_NAME
 def get_card():
     with sqlite3.connect(DB_NAME) as conn:
         cur = conn.cursor()
-        cards = cur.execute('SELECT text, type, difficulty, is_red FROM cards WHERE is_taken = 0').fetchall()
+        try:
+            card = choice(
+                cur.execute('SELECT id, text, type, difficulty, is_red FROM cards WHERE is_taken = 0').fetchall()
+            )
+        except IndexError:
+            cur.execute('UPDATE cards SET is_taken = 0 WHERE is_taken = 1')
+            card = choice(
+                cur.execute('SELECT id, text, type, difficulty, is_red FROM cards WHERE is_taken = 0').fetchall()
+            )
+        cur.execute('UPDATE cards SET is_taken = 1 WHERE id = ?', (card[0], ))
         conn.commit()
-        return choice(cards)
+        return card[1:]
 
 
 #  Ключи словаря - сложность. Значения - кортежи, где [0] - рисунок, [1] - говорение, [2] - жесты.
