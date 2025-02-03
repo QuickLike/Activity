@@ -14,41 +14,47 @@ used_cards = set()
 def init_commands():
     commands = {}
     while True:
-        commands_count = input('Введите количество команд (от 2х):\n')
+        commands_count = input('Введите количество команд (от 2х):\t')
         try:
             commands_count = int(commands_count)
         except ValueError('Введите число!'):
             continue
         if commands_count < 2:
-            print('Команд не может быть меньше двух!')
+            print('Команд не может быть меньше двух!\n')
             continue
         for i in range(commands_count):
-            commands[input(f'Введите название команды №{i + 1}\n')] = 0
+            while True:
+                command_name = input(f'Введите название команды №{i + 1}\t')
+                if command_name not in commands:
+                    commands[command_name] = 0
+                    break
+                print(f'Команда "{command_name}" уже есть в игре.')
+                sleep(2)
         return commands
 
 
 def init_timer():
     while True:
-        timer_time = input('Укажите время таймера в секундах (от 10 до 120):\n')
+        timer_time = input('Укажите время таймера в секундах (от 10 до 120):\t')
         try:
             timer_time = int(timer_time)
         except ValueError('Необходимо ввести число!'):
             continue
         if not (10 <= timer_time <= 120):
-            print('Время таймера должно быть в диапазоне от 10 до 120 секунд.')
+            print('Время таймера должно быть в диапазоне от 10 до 120 секунд.\n')
             continue
         return timer_time
 
 
 def init_points():
     while True:
-        points = input('Укажите количество очков для победы (от 3х до 100):\n')
+        points = input('Укажите количество очков для победы (от 3х до 100):\t')
         try:
             points = int(points)
-        except ValueError('Необходимо ввести число!'):
+        except ValueError('Необходимо ввести число!\n'):
             continue
         if not (3 <= points <= 100):
-            print('Количество очков должно быть в диапазоне от 10 до 120 секунд.')
+            print('Количество очков должно быть в диапазоне от 10 до 120 секунд.\n')
             continue
         return points
 
@@ -77,40 +83,47 @@ def give_card(diff: int) -> tuple:
 def start_guess(points: int, commands: dict, timer_time: int):
     while True:
         for command_name in commands:
-            print(f'Очередь команды "{command_name}"')
-            input('Нажмите Enter для раздачи карты\n')
+            print('\n' * 20)
+            print(f'Очередь команды "{command_name}"\n')
+            print('\n' * 8)
+            input('Нажмите Enter для раздачи карты\n\n')
             card_text, card_type, card_difficulty, is_red = get_card()
             # difficulty = randint(3, 5)
             # card = give_card(difficulty)
             # card_text = (Fore.RED if True in card[0] else Fore.RESET) + card[0][0]
             card_text = Fore.RED * is_red + card_text
+            print('\n' * 20)
             print(card_text)
             print(Fore.RESET + f'Тип карты "{TYPES[card_type - 1]}".')
             print(f'Сложность карты: {card_difficulty}')
-            print()
+            print('\n' * 8)
             input('Нажмите Enter для запуска таймера.\n')
+            print('\n' * 20)
             try:
                 timer(timer_time)
             except KeyboardInterrupt:
                 playsound(TIME_IS_UP_SOUND)
-            if input('Напишите 0 и нажмите Enter, если не угадали.\nЕсли угадали, просто нажмите Enter.\n') == '0':
+            print('\n' * 20)
+            if input('Напишите 0 и нажмите Enter, если не угадали.\nЕсли угадали, просто нажмите Enter.\t') == '0':
                 continue
             if is_red:
                 while True:
-                    win_command = input('Введите название угадавшей команды:\n')
+                    win_command = input('Введите название угадавшей команды:\t')
                     if win_command not in commands:
                         print(f'Команды {win_command} нет в игре!\n')
                         continue
                     command_name = win_command
                     break
-            print(f'Команда "{command_name}" заработала очки: {card_difficulty}\n')
+            print(f'Команда "{command_name}" заработала очки: {card_difficulty}\n\n')
             commands[command_name] += card_difficulty
             if commands[command_name] >= points:
+                print('\n' * 8)
                 print('Игра окончена!')
-                print(f'Победа команды "{command_name}"!\n')
+                print(f'Победа команды "{command_name}"!\n\n')
                 print('Общий счет')
                 for name, score in commands.items():
                     print(f'{name}: {score}')
+                print('\n' * 8)
                 playsound(VICTORY_SOUND)
                 return
 
