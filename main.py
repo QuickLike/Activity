@@ -7,6 +7,7 @@ from tqdm import tqdm
 
 from cards import cards, get_card
 from config import TYPES, TIME_IS_UP_SOUND, TIMER_SOUND, VICTORY_SOUND
+from db_reset import reset_db
 
 used_cards = set()
 
@@ -129,6 +130,7 @@ def start_guess(points: int, commands: dict, timer_time: int):
 
 
 def main():
+    reset_db()
     print('Добро пожаловать в игру "Activity"!\n')
     start_guess(init_points(), init_commands(), init_timer())
 
